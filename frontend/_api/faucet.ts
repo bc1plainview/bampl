@@ -1,15 +1,18 @@
 /**
- * BAMPL Faucet — Vercel Serverless Function
+ * BAMPL Faucet — Vercel Serverless Function (Build Output API v3)
  *
  * POST /api/faucet  { "address": "opt1p...", "hashedMLDSAKey?": "hex..." }
  * Returns: { "success": true, "txHash": "...", "amount": "1000" }
+ *
+ * Uses raw Node.js http.IncomingMessage / http.ServerResponse
+ * (Build Output API v3 does NOT provide VercelRequest/VercelResponse).
  *
  * Environment variables (set in Vercel dashboard):
  *   DEPLOYER_MNEMONIC       — 24-word mnemonic for the faucet wallet
  *   BAMPL_CONTRACT_ADDRESS  — the deployed BAMPL contract address
  *   RPC_URL                 — OPNet JSON-RPC endpoint (defaults to testnet)
  */
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IncomingMessage, ServerResponse } from 'http';
 import { Address, Mnemonic, OPNetLimitedProvider } from '@btc-vision/transaction';
 import { networks } from '@btc-vision/bitcoin';
 import { ABIDataTypes, BitcoinAbiTypes, BitcoinInterfaceAbi, getContract, JSONRpcProvider, OP_NET_ABI } from 'opnet';
@@ -38,40 +41,58 @@ interface FaucetBody {
     hashedMLDSAKey?: string;
 }
 
-function corsHeaders() {
-    return {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-    };
+const CORS_HEADERS: Record<string, string> = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
+};
+
+function sendJSON(res: ServerResponse, status: number, data: unknown): void {
+    res.writeHead(status, CORS_HEADERS);
+    res.end(JSON.stringify(data));
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+function readBody(req: IncomingMessage): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+        req.on('error', reject);
+    });
+}
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
     // CORS preflight
     if (req.method === 'OPTIONS') {
-        res.writeHead(204, corsHeaders());
+        res.writeHead(204, CORS_HEADERS);
         res.end();
         return;
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ success: false, error: 'Method not allowed' });
-    }
-
-    // Set CORS headers for all responses
-    for (const [k, v] of Object.entries(corsHeaders())) {
-        res.setHeader(k, v);
+        sendJSON(res, 405, { success: false, error: 'Method not allowed' });
+        return;
     }
 
     try {
-        const body = req.body as FaucetBody;
+        const rawBody = await readBody(req);
+        let body: FaucetBody;
+        try {
+            body = JSON.parse(rawBody) as FaucetBody;
+        } catch {
+            sendJSON(res, 400, { success: false, error: 'Invalid JSON body.' });
+            return;
+        }
 
         if (!body.address || typeof body.address !== 'string' || body.address.length < 10) {
-            return res.status(400).json({ success: false, error: 'Invalid address.' });
+            sendJSON(res, 400, { success: false, error: 'Invalid address.' });
+            return;
         }
 
         if (!process.env.DEPLOYER_MNEMONIC) {
-            return res.status(500).json({ success: false, error: 'Faucet not configured.' });
+            sendJSON(res, 500, { success: false, error: 'Faucet not configured.' });
+            return;
         }
 
         // Derive wallet from mnemonic
@@ -100,10 +121,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 if (info && !('error' in info) && info.mldsaHashedPublicKey) {
                     toAddr = new Address(Buffer.from(info.mldsaHashedPublicKey, 'hex'));
                 } else {
-                    return res.status(400).json({
+                    sendJSON(res, 400, {
                         success: false,
                         error: 'Could not resolve your address. Please connect with OP_WALLET which provides your ML-DSA identity.',
                     });
+                    return;
                 }
             }
         }
@@ -112,10 +134,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sim = await (contract as any).transfer(toAddr, FAUCET_AMOUNT);
         if (!sim?.calldata) {
-            return res.status(500).json({
+            sendJSON(res, 500, {
                 success: false,
                 error: 'Transfer simulation failed. The contract may be temporarily unavailable.',
             });
+            return;
         }
 
         // Fetch UTXOs
@@ -124,10 +147,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             minAmount: 10_000n,
         } as Parameters<typeof limitedProvider.fetchUTXO>[0]);
         if (utxos.length === 0) {
-            return res.status(503).json({
+            sendJSON(res, 503, {
                 success: false,
                 error: 'Faucet is temporarily out of gas. Please try again later.',
             });
+            return;
         }
 
         const challenge = await provider.getChallenge();
@@ -147,15 +171,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
         if (!result?.transactionId) {
-            return res.status(500).json({
+            sendJSON(res, 500, {
                 success: false,
                 error: 'Transaction failed to broadcast. Please try again.',
             });
+            return;
         }
 
         console.log(`Faucet: sent 1,000 BAMPL to ${body.address.slice(0, 12)}... TX: ${result.transactionId}`);
 
-        return res.status(200).json({
+        sendJSON(res, 200, {
             success: true,
             txHash: result.transactionId,
             amount: '1000',
@@ -163,6 +188,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (err: unknown) {
         const msg = (err as Error).message || 'Unknown error';
         console.error(`Faucet error: ${msg.slice(0, 300)}`);
-        return res.status(500).json({ success: false, error: msg });
+        sendJSON(res, 500, { success: false, error: msg });
     }
 }
