@@ -12,14 +12,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Address, Mnemonic, OPNetLimitedProvider } from '@btc-vision/transaction';
 import { networks } from '@btc-vision/bitcoin';
-import { ABIDataTypes, BitcoinAbiTypes, getContract, JSONRpcProvider, OP_NET_ABI } from 'opnet';
+import { ABIDataTypes, BitcoinAbiTypes, BitcoinInterfaceAbi, getContract, JSONRpcProvider, OP_NET_ABI } from 'opnet';
 
 const NETWORK = networks.opnetTestnet;
 const RPC_URL = process.env.RPC_URL || 'https://testnet.opnet.org';
 const CONTRACT = process.env.BAMPL_CONTRACT_ADDRESS!;
 const FAUCET_AMOUNT = 100_000_000_000n; // 1,000 BAMPL (8 decimals)
 
-const BAMPLTokenAbi = [
+const BAMPLTokenAbi: BitcoinInterfaceAbi = [
     {
         name: 'transfer',
         constant: false,
@@ -31,7 +31,7 @@ const BAMPLTokenAbi = [
         type: BitcoinAbiTypes.Function,
     },
     ...OP_NET_ABI,
-] as const;
+];
 
 interface FaucetBody {
     address: string;
@@ -121,8 +121,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Fetch UTXOs
         const utxos = await limitedProvider.fetchUTXO({
             address: wallet.p2tr,
-            requestedAmount: 10_000n,
-        });
+            minAmount: 10_000n,
+        } as Parameters<typeof limitedProvider.fetchUTXO>[0]);
         if (utxos.length === 0) {
             return res.status(503).json({
                 success: false,
