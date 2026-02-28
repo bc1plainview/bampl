@@ -18,8 +18,8 @@ import { networks } from '@btc-vision/bitcoin';
 import { ABIDataTypes, BitcoinAbiTypes, BitcoinInterfaceAbi, getContract, JSONRpcProvider, OP_NET_ABI } from 'opnet';
 
 const NETWORK = networks.opnetTestnet;
-const RPC_URL = process.env.RPC_URL || 'https://testnet.opnet.org';
-const CONTRACT = process.env.BAMPL_CONTRACT_ADDRESS!;
+const RPC_URL = (process.env.RPC_URL || 'https://testnet.opnet.org').trim();
+const CONTRACT = (process.env.BAMPL_CONTRACT_ADDRESS || '').trim();
 const FAUCET_AMOUNT = 100_000_000_000n; // 1,000 BAMPL (8 decimals)
 
 const BAMPLTokenAbi: BitcoinInterfaceAbi = [
