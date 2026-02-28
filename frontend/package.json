@@ -4,6 +4,7 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
+        "postinstall": "node patch-noble-hashes.js",
         "dev": "vite",
         "build": "eslint src && tsc --noEmit && vite build",
         "lint": "eslint src",
