@@ -22,6 +22,7 @@ const FAUCET_AMOUNT = 100_000_000_000n; // 1,000 BAMPL (8 decimals)
 const BAMPLTokenAbi = [
     {
         name: 'transfer',
+        constant: false,
         inputs: [
             { name: 'to', type: ABIDataTypes.ADDRESS },
             { name: 'amount', type: ABIDataTypes.UINT256 },
@@ -30,7 +31,7 @@ const BAMPLTokenAbi = [
         type: BitcoinAbiTypes.Function,
     },
     ...OP_NET_ABI,
-];
+] as const;
 
 interface FaucetBody {
     address: string;
@@ -120,7 +121,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Fetch UTXOs
         const utxos = await limitedProvider.fetchUTXO({
             address: wallet.p2tr,
-            minAmount: 10_000n,
+            requestedAmount: 10_000n,
         });
         if (utxos.length === 0) {
             return res.status(503).json({
