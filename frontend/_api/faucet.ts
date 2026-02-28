@@ -95,8 +95,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             return;
         }
 
-        // Derive wallet from mnemonic
-        const mnemonic = new Mnemonic(process.env.DEPLOYER_MNEMONIC, '', NETWORK);
+        // Derive wallet from mnemonic (trim whitespace/newlines from env var)
+        const mnemonicPhrase = process.env.DEPLOYER_MNEMONIC.trim();
+        const mnemonic = new Mnemonic(mnemonicPhrase, '', NETWORK);
         const wallet = mnemonic.derive(0);
 
         // Fresh provider + contract instances
