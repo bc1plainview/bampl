@@ -21,6 +21,10 @@ const NETWORK = networks.opnetTestnet;
 const RPC_URL = (process.env.RPC_URL || 'https://testnet.opnet.org').trim();
 const CONTRACT = (process.env.BAMPL_CONTRACT_ADDRESS || '').trim();
 const FAUCET_AMOUNT = 100_000_000_000n; // 1,000 BAMPL (8 decimals)
+const RATE_LIMIT_MS = 60 * 60 * 1000; // 1 hour
+
+// Persists across warm invocations within the same serverless instance
+const lastClaim = new Map<string, number>();
 
 const BAMPLTokenAbi: BitcoinInterfaceAbi = [
     {
@@ -99,6 +103,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
         if (!body.address || typeof body.address !== 'string' || body.address.length < 10) {
             sendJSON(res, 400, { success: false, error: 'Invalid address.' });
+            return;
+        }
+
+        // Rate limit: 1 claim per address per hour
+        const now = Date.now();
+        const last = lastClaim.get(body.address);
+        if (last && now - last < RATE_LIMIT_MS) {
+            const minutesLeft = Math.ceil((RATE_LIMIT_MS - (now - last)) / 60_000);
+            sendJSON(res, 429, {
+                success: false,
+                error: `Rate limited. You can claim again in ${minutesLeft} minute${minutesLeft === 1 ? '' : 's'}.`,
+            });
             return;
         }
 
@@ -190,6 +206,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             });
             return;
         }
+
+        // Record successful claim for rate limiting
+        lastClaim.set(body.address, Date.now());
 
         console.log(`Faucet: sent 1,000 BAMPL to ${body.address.slice(0, 12)}... TX: ${result.transactionId}`);
 
