@@ -1,9 +1,9 @@
 {
     "framework": "vite",
-    "buildCommand": "vite build",
+    "buildCommand": "vite build && node bundle-api.js",
     "outputDirectory": "dist",
     "functions": {
-        "api/faucet.ts": {
+        "api/faucet.mjs": {
             "maxDuration": 30
         }
     }
