@@ -7,10 +7,9 @@
  *   2. Remove api/faucet.ts so Vercel uses the .mjs bundle
  */
 import { build } from 'esbuild';
-import { unlinkSync } from 'fs';
 
 await build({
-    entryPoints: ['api/faucet.ts'],
+    entryPoints: ['_api/faucet.ts'],
     bundle: true,
     platform: 'node',
     target: 'node18',
@@ -25,7 +24,4 @@ await build({
     },
 });
 
-// Remove the .ts source so Vercel picks up .mjs instead
-try { unlinkSync('api/faucet.ts'); } catch { /* ignore */ }
-
-console.log('  api/faucet.ts → api/faucet.mjs (bundled ESM)');
+console.log('  _api/faucet.ts → api/faucet.mjs (bundled ESM)');
