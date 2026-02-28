@@ -9,7 +9,7 @@ type FaucetState = 'idle' | 'loading' | 'success' | 'error';
  * Requires wallet connection first, then calls the faucet backend.
  */
 export function FaucetPanel() {
-    const { isConnected, walletAddress, openConnectModal, hashedMLDSAKey, publicKey } = useWallet();
+    const { isConnected, walletAddress, openConnectModal, hashedMLDSAKey } = useWallet();
     const [state, setState] = useState<FaucetState>('idle');
     const [txHash, setTxHash] = useState('');
     const [error, setError] = useState('');
@@ -26,7 +26,6 @@ export function FaucetPanel() {
                 body: JSON.stringify({
                     address: walletAddress,
                     hashedMLDSAKey: hashedMLDSAKey || undefined,
-                    publicKey: publicKey || undefined,
                 }),
             });
 
@@ -47,7 +46,7 @@ export function FaucetPanel() {
             setState('error');
             setError('Faucet server is unavailable. Please try again later.');
         }
-    }, [walletAddress, hashedMLDSAKey, publicKey]);
+    }, [walletAddress, hashedMLDSAKey]);
 
     const [copied, setCopied] = useState(false);
 
@@ -133,7 +132,7 @@ export function FaucetPanel() {
                         <p className="faucet__success-text">1,000 BAMPL sent to your wallet</p>
                         <div className="faucet__tx-links">
                             <a
-                                href={`https://testnet.opnet.org/tx/${txHash}`}
+                                href={`https://opscan.org/transactions/${txHash}?network=op_testnet`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="faucet__tx-link"

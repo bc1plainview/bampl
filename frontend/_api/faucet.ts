@@ -13,7 +13,7 @@
  *   RPC_URL                 — OPNet JSON-RPC endpoint (defaults to testnet)
  */
 import type { IncomingMessage, ServerResponse } from 'http';
-import { Address, Mnemonic, OPNetLimitedProvider } from '@btc-vision/transaction';
+import { Address, BufferHelper, Mnemonic, OPNetLimitedProvider } from '@btc-vision/transaction';
 import { networks } from '@btc-vision/bitcoin';
 import { ABIDataTypes, BitcoinAbiTypes, BitcoinInterfaceAbi, getContract, JSONRpcProvider, OP_NET_ABI } from 'opnet';
 
@@ -55,9 +55,21 @@ function sendJSON(res: ServerResponse, status: number, data: unknown): void {
 
 function readBody(req: IncomingMessage): Promise<string> {
     return new Promise((resolve, reject) => {
-        const chunks: Buffer[] = [];
-        req.on('data', (chunk: Buffer) => chunks.push(chunk));
-        req.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+        const chunks: Uint8Array[] = [];
+        let totalLength = 0;
+        req.on('data', (chunk: Uint8Array) => {
+            chunks.push(chunk);
+            totalLength += chunk.length;
+        });
+        req.on('end', () => {
+            const merged = new Uint8Array(totalLength);
+            let offset = 0;
+            for (const chunk of chunks) {
+                merged.set(chunk, offset);
+                offset += chunk.length;
+            }
+            resolve(new TextDecoder().decode(merged));
+        });
         req.on('error', reject);
     });
 }
@@ -110,7 +122,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         let toAddr: Address;
 
         if (body.hashedMLDSAKey) {
-            toAddr = new Address(Buffer.from(body.hashedMLDSAKey, 'hex'));
+            toAddr = new Address(BufferHelper.hexToUint8Array(body.hashedMLDSAKey));
         } else {
             try {
                 const resolved = await provider.getPublicKeyInfo(body.address, false);
@@ -120,7 +132,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
                 const raw = await provider.getPublicKeysInfoRaw(body.address);
                 const info = raw[body.address];
                 if (info && !('error' in info) && info.mldsaHashedPublicKey) {
-                    toAddr = new Address(Buffer.from(info.mldsaHashedPublicKey, 'hex'));
+                    toAddr = new Address(BufferHelper.hexToUint8Array(info.mldsaHashedPublicKey));
                 } else {
                     sendJSON(res, 400, {
                         success: false,
