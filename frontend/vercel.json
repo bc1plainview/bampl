@@ -1,10 +1,4 @@
 {
-    "framework": "vite",
-    "buildCommand": "vite build",
-    "outputDirectory": "dist",
-    "functions": {
-        "api/faucet.ts": {
-            "maxDuration": 30
-        }
-    }
+    "buildCommand": "node build-all.js",
+    "outputDirectory": ".vercel/output"
 }
