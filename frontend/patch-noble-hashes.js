@@ -14,9 +14,14 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
+// ESM shims
 const sha256Shim = `// Compatibility shim: v2 moved sha256 to sha2.js\nexport { sha256, sha224 } from "./sha2.js";\n`;
 const sha512Shim = `// Compatibility shim: v2 moved sha512 to sha2.js\nexport { sha512, sha512_224, sha512_256, sha384 } from "./sha2.js";\n`;
 const ripemd160Shim = `// Compatibility shim: v2 moved ripemd160 to legacy.js\nexport { ripemd160 } from "./legacy.js";\n`;
+// CJS shims (for packages like bip39 that use require())
+const sha256CjsShim = `// CJS compatibility shim\nconst sha2 = require("./sha2.js");\nmodule.exports = sha2;\n`;
+const sha512CjsShim = `// CJS compatibility shim\nconst sha2 = require("./sha2.js");\nmodule.exports = sha2;\n`;
+const ripemd160CjsShim = `// CJS compatibility shim\nconst legacy = require("./legacy.js");\nmodule.exports = legacy;\n`;
 
 function patchDir(dir, label) {
     const pkgPath = resolve(dir, 'package.json');
@@ -57,10 +62,10 @@ function patchDir(dir, label) {
         }
     }
 
-    // Add v1-compat shim entries
-    newExports['./sha256'] = './sha256.js';
-    newExports['./sha512'] = './sha512.js';
-    newExports['./ripemd160'] = './ripemd160.js';
+    // Add v1-compat shim entries (dual ESM/CJS)
+    newExports['./sha256'] = { import: './sha256.js', require: './sha256.cjs', default: './sha256.js' };
+    newExports['./sha512'] = { import: './sha512.js', require: './sha512.cjs', default: './sha512.js' };
+    newExports['./ripemd160'] = { import: './ripemd160.js', require: './ripemd160.cjs', default: './ripemd160.js' };
     newExports['./pbkdf2'] = './pbkdf2.js';
     newExports['./hmac'] = './hmac.js';
     newExports['./hkdf'] = './hkdf.js';
@@ -68,12 +73,17 @@ function patchDir(dir, label) {
     pkg.exports = newExports;
     writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
-    // Create shim files (only if they don't already exist from the package)
+    // Create ESM shim files
     writeFileSync(resolve(dir, 'sha256.js'), sha256Shim);
     writeFileSync(resolve(dir, 'sha512.js'), sha512Shim);
     if (!existsSync(resolve(dir, 'ripemd160.js'))) {
         writeFileSync(resolve(dir, 'ripemd160.js'), ripemd160Shim);
     }
+
+    // Create CJS shim files
+    writeFileSync(resolve(dir, 'sha256.cjs'), sha256CjsShim);
+    writeFileSync(resolve(dir, 'sha512.cjs'), sha512CjsShim);
+    writeFileSync(resolve(dir, 'ripemd160.cjs'), ripemd160CjsShim);
 
     console.log(`  ${label}: v${pkg.version} - full v2->v1 compat patch applied`);
 }
