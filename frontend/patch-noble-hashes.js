@@ -1,27 +1,40 @@
 /**
- * Patches @noble/hashes v2 to be backwards-compatible with v1 import paths.
- * Only patches v2+ installations; v1 is left untouched.
+ * Patches @noble/hashes to be compatible with both v1 and v2 import paths.
  *
- * v2 changes:
- *   - sha256/sha512 moved into sha2.js
- *   - ripemd160 moved into legacy.js
- *   - extensionless imports dropped
+ * OPNet packages import v2-style paths (e.g., @noble/hashes/sha2.js)
+ * while bip39 uses v1-style CJS paths (e.g., require('@noble/hashes/sha256')).
  *
- * This script:
- * 1. Adds extensionless entries to the exports map (v2 only)
- * 2. Creates sha256.js, sha512.js, ripemd160.js shim files (v2 only)
+ * For v1: adds extensionless entries + v2-style sha2.js shim
+ * For v2: adds v1-style sha256.js/sha512.js shims (ESM + CJS)
  */
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 
-// ESM shims
-const sha256Shim = `// Compatibility shim: v2 moved sha256 to sha2.js\nexport { sha256, sha224 } from "./sha2.js";\n`;
-const sha512Shim = `// Compatibility shim: v2 moved sha512 to sha2.js\nexport { sha512, sha512_224, sha512_256, sha384 } from "./sha2.js";\n`;
-const ripemd160Shim = `// Compatibility shim: v2 moved ripemd160 to legacy.js\nexport { ripemd160 } from "./legacy.js";\n`;
-// CJS shims (for packages like bip39 that use require())
-const sha256CjsShim = `// CJS compatibility shim\nconst sha2 = require("./sha2.js");\nmodule.exports = sha2;\n`;
-const sha512CjsShim = `// CJS compatibility shim\nconst sha2 = require("./sha2.js");\nmodule.exports = sha2;\n`;
-const ripemd160CjsShim = `// CJS compatibility shim\nconst legacy = require("./legacy.js");\nmodule.exports = legacy;\n`;
+// v2-style sha2.js shim for v1 installations
+// v1 has sha256.js and sha512.js separately; v2 merged them into sha2.js
+const sha2ShimForV1 = `// Shim: re-export v1 sha256/sha512 as v2 sha2 format
+"use strict";
+var sha256_1 = require("./sha256.js");
+var sha512_1 = require("./sha512.js");
+module.exports.sha256 = sha256_1.sha256;
+module.exports.sha224 = sha256_1.sha224;
+module.exports.sha512 = sha512_1.sha512;
+module.exports.sha384 = sha512_1.sha384;
+if (sha512_1.sha512_224) module.exports.sha512_224 = sha512_1.sha512_224;
+if (sha512_1.sha512_256) module.exports.sha512_256 = sha512_1.sha512_256;
+`;
+
+// legacy.js shim for v1 (v2 moved ripemd160 into legacy.js)
+const legacyShimForV1 = `// Shim: re-export v1 ripemd160 as v2 legacy format
+"use strict";
+var ripemd160_1 = require("./ripemd160.js");
+module.exports.ripemd160 = ripemd160_1.ripemd160;
+`;
+
+// v1-style shims for v2 installations (ESM)
+const sha256ShimForV2 = `// Compatibility shim: v2 moved sha256 to sha2.js\nexport { sha256, sha224 } from "./sha2.js";\n`;
+const sha512ShimForV2 = `// Compatibility shim: v2 moved sha512 to sha2.js\nexport { sha512, sha512_224, sha512_256, sha384 } from "./sha2.js";\n`;
+const ripemd160ShimForV2 = `// Compatibility shim: v2 moved ripemd160 to legacy.js\nexport { ripemd160 } from "./legacy.js";\n`;
 
 function patchDir(dir, label) {
     const pkgPath = resolve(dir, 'package.json');
@@ -30,27 +43,9 @@ function patchDir(dir, label) {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
     if (!pkg.exports) return;
 
-    // Only patch v2+ (v1 already has sha256.js, sha512.js, ripemd160.js natively)
     const major = parseInt(pkg.version?.split('.')[0] || '0', 10);
-    if (major < 2) {
-        // For v1, just add extensionless entries pointing to existing conditional exports
-        const newExports = {};
-        for (const [key, value] of Object.entries(pkg.exports)) {
-            newExports[key] = value;
-            if (key.endsWith('.js') && key !== '.') {
-                const bare = key.replace(/\.js$/, '');
-                if (!newExports[bare]) {
-                    newExports[bare] = value;
-                }
-            }
-        }
-        pkg.exports = newExports;
-        writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
-        console.log(`  ${label}: v${pkg.version} - added extensionless entries only`);
-        return;
-    }
 
-    // v2+: add extensionless entries AND create shim files
+    // Build new exports map with extensionless entries
     const newExports = {};
     for (const [key, value] of Object.entries(pkg.exports)) {
         newExports[key] = value;
@@ -62,30 +57,44 @@ function patchDir(dir, label) {
         }
     }
 
-    // Add v1-compat shim entries (dual ESM/CJS)
-    newExports['./sha256'] = { import: './sha256.js', require: './sha256.cjs', default: './sha256.js' };
-    newExports['./sha512'] = { import: './sha512.js', require: './sha512.cjs', default: './sha512.js' };
-    newExports['./ripemd160'] = { import: './ripemd160.js', require: './ripemd160.cjs', default: './ripemd160.js' };
-    newExports['./pbkdf2'] = './pbkdf2.js';
-    newExports['./hmac'] = './hmac.js';
-    newExports['./hkdf'] = './hkdf.js';
+    if (major < 2) {
+        // v1: add v2-style paths (sha2.js, legacy.js)
+        newExports['./sha2'] = './sha2.js';
+        newExports['./sha2.js'] = './sha2.js';
+        newExports['./legacy'] = './legacy.js';
+        newExports['./legacy.js'] = './legacy.js';
 
-    pkg.exports = newExports;
-    writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+        pkg.exports = newExports;
+        writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
-    // Create ESM shim files
-    writeFileSync(resolve(dir, 'sha256.js'), sha256Shim);
-    writeFileSync(resolve(dir, 'sha512.js'), sha512Shim);
-    if (!existsSync(resolve(dir, 'ripemd160.js'))) {
-        writeFileSync(resolve(dir, 'ripemd160.js'), ripemd160Shim);
+        // Create v2-style shim files
+        writeFileSync(resolve(dir, 'sha2.js'), sha2ShimForV1);
+        if (!existsSync(resolve(dir, 'legacy.js'))) {
+            writeFileSync(resolve(dir, 'legacy.js'), legacyShimForV1);
+        }
+
+        console.log(`  ${label}: v${pkg.version} - added extensionless + v2-style shims`);
+    } else {
+        // v2: add v1-style paths (sha256.js, sha512.js, ripemd160.js)
+        newExports['./sha256'] = './sha256.js';
+        newExports['./sha512'] = './sha512.js';
+        newExports['./ripemd160'] = './ripemd160.js';
+        newExports['./pbkdf2'] = './pbkdf2.js';
+        newExports['./hmac'] = './hmac.js';
+        newExports['./hkdf'] = './hkdf.js';
+
+        pkg.exports = newExports;
+        writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+
+        // Create v1-style shim files (ESM)
+        writeFileSync(resolve(dir, 'sha256.js'), sha256ShimForV2);
+        writeFileSync(resolve(dir, 'sha512.js'), sha512ShimForV2);
+        if (!existsSync(resolve(dir, 'ripemd160.js'))) {
+            writeFileSync(resolve(dir, 'ripemd160.js'), ripemd160ShimForV2);
+        }
+
+        console.log(`  ${label}: v${pkg.version} - full v2->v1 compat patch applied`);
     }
-
-    // Create CJS shim files
-    writeFileSync(resolve(dir, 'sha256.cjs'), sha256CjsShim);
-    writeFileSync(resolve(dir, 'sha512.cjs'), sha512CjsShim);
-    writeFileSync(resolve(dir, 'ripemd160.cjs'), ripemd160CjsShim);
-
-    console.log(`  ${label}: v${pkg.version} - full v2->v1 compat patch applied`);
 }
 
 const base = import.meta.dirname ?? '.';
