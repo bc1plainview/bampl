@@ -24,7 +24,7 @@ const funcDir = '.vercel/output/functions/api/faucet.func';
 mkdirSync(funcDir, { recursive: true });
 
 await build({
-    entryPoints: ['api/faucet.ts'],
+    entryPoints: ['_api/faucet.ts'],
     bundle: true,
     platform: 'node',
     target: 'node18',
@@ -46,7 +46,7 @@ writeFileSync(`${funcDir}/.vc-config.json`, JSON.stringify({
     maxDuration: 30,
 }, null, 2));
 
-console.log('  api/faucet.ts → functions/api/faucet.func/index.mjs');
+console.log('  _api/faucet.ts → functions/api/faucet.func/index.mjs');
 
 // Step 3: Assemble Build Output API v3 structure
 const outputDir = '.vercel/output';
