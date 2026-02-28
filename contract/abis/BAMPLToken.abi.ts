@@ -1,0 +1,233 @@
+import { ABIDataTypes, BitcoinAbiTypes, OP_NET_ABI } from 'opnet';
+
+export const BAMPLTokenEvents = [];
+
+export const BAMPLTokenAbi = [
+    {
+        name: 'name',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'name', type: ABIDataTypes.STRING }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'symbol',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'symbol', type: ABIDataTypes.STRING }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'decimals',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'decimals', type: ABIDataTypes.UINT8 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'totalSupply',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'totalSupply', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'balanceOf',
+        constant: true,
+        inputs: [{ name: 'owner', type: ABIDataTypes.ADDRESS }],
+        outputs: [{ name: 'balance', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'scaledBalanceOf',
+        constant: true,
+        inputs: [{ name: 'owner', type: ABIDataTypes.ADDRESS }],
+        outputs: [{ name: 'gonBalance', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'scaledTotalSupply',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'scaledTotal', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'allowance',
+        constant: true,
+        inputs: [
+            { name: 'owner', type: ABIDataTypes.ADDRESS },
+            { name: 'spender', type: ABIDataTypes.ADDRESS },
+        ],
+        outputs: [{ name: 'remaining', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'transfer',
+        inputs: [
+            { name: 'to', type: ABIDataTypes.ADDRESS },
+            { name: 'amount', type: ABIDataTypes.UINT256 },
+        ],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'transferFrom',
+        inputs: [
+            { name: 'from', type: ABIDataTypes.ADDRESS },
+            { name: 'to', type: ABIDataTypes.ADDRESS },
+            { name: 'amount', type: ABIDataTypes.UINT256 },
+        ],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'transferAll',
+        inputs: [{ name: 'to', type: ABIDataTypes.ADDRESS }],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'approve',
+        inputs: [
+            { name: 'spender', type: ABIDataTypes.ADDRESS },
+            { name: 'amount', type: ABIDataTypes.UINT256 },
+        ],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'increaseAllowance',
+        inputs: [
+            { name: 'spender', type: ABIDataTypes.ADDRESS },
+            { name: 'addedValue', type: ABIDataTypes.UINT256 },
+        ],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'decreaseAllowance',
+        inputs: [
+            { name: 'spender', type: ABIDataTypes.ADDRESS },
+            { name: 'subtractedValue', type: ABIDataTypes.UINT256 },
+        ],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'postPrice',
+        inputs: [{ name: 'price', type: ABIDataTypes.UINT256 }],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'rebase',
+        inputs: [],
+        outputs: [{ name: 'newTotalSupply', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'currentPrice',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'price', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'targetPrice',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'target', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'currentEpoch',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'epoch', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'nextRebaseBlock',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'blockHeight', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'canRebase',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'ready', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'gonsPerFragment',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'gonsPerFragment', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'lastRebaseBlock',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'lastRebaseBlock', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'epochLength',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'epochLength', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'rebaseLag',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'lag', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'deviationThreshold',
+        constant: true,
+        inputs: [],
+        outputs: [{ name: 'threshold', type: ABIDataTypes.UINT256 }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setTargetPrice',
+        inputs: [{ name: 'newTarget', type: ABIDataTypes.UINT256 }],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setEpochLength',
+        inputs: [{ name: 'newLength', type: ABIDataTypes.UINT256 }],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setRebaseLag',
+        inputs: [{ name: 'newLag', type: ABIDataTypes.UINT256 }],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'setDeviationThreshold',
+        inputs: [{ name: 'newThreshold', type: ABIDataTypes.UINT256 }],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    {
+        name: 'enableDemoMode',
+        inputs: [],
+        outputs: [{ name: 'success', type: ABIDataTypes.BOOL }],
+        type: BitcoinAbiTypes.Function,
+    },
+    ...BAMPLTokenEvents,
+    ...OP_NET_ABI,
+];
+
+export default BAMPLTokenAbi;

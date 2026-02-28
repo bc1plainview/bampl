@@ -1,0 +1,45 @@
+{
+    "name": "bampl-frontend",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "eslint src && tsc --noEmit && vite build",
+        "lint": "eslint src",
+        "lint:fix": "eslint src --fix",
+        "typecheck": "tsc --noEmit",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@btc-vision/bip32": "latest",
+        "@btc-vision/bitcoin": "rc",
+        "@btc-vision/ecpair": "latest",
+        "@btc-vision/transaction": "rc",
+        "@btc-vision/walletconnect": "latest",
+        "opnet": "1.8.1-rc.12",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.0.0",
+        "@types/node": "latest",
+        "@types/react": "latest",
+        "@types/react-dom": "latest",
+        "@vercel/node": "^5.6.9",
+        "@vitejs/plugin-react": "latest",
+        "crypto-browserify": "latest",
+        "eslint": "^9.0.0",
+        "eslint-plugin-react-hooks": "^5.0.0",
+        "eslint-plugin-react-refresh": "^0.4.0",
+        "stream-browserify": "latest",
+        "typescript": "latest",
+        "typescript-eslint": "^8.56.0",
+        "vite": "latest",
+        "vite-plugin-eslint2": "latest",
+        "vite-plugin-node-polyfills": "latest"
+    },
+    "overrides": {
+        "@noble/hashes": "2.0.1"
+    }
+}

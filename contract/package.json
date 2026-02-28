@@ -1,0 +1,22 @@
+{
+    "name": "bampl-contract",
+    "version": "1.0.0",
+    "description": "BAMPL - Ampleforth elastic supply fork on OPNet Bitcoin L1",
+    "type": "module",
+    "scripts": {
+        "build": "asc src/index.ts --config asconfig.json --target debug",
+        "clean": "rm -rf build/*"
+    },
+    "dependencies": {
+        "@btc-vision/as-bignum": "0.1.2",
+        "@btc-vision/btc-runtime": "rc"
+    },
+    "devDependencies": {
+        "@btc-vision/assemblyscript": "^0.29.2",
+        "@btc-vision/opnet-transform": "1.1.0",
+        "@assemblyscript/loader": "latest",
+        "eslint": "^9.39.2",
+        "@eslint/js": "^9.39.2"
+    },
+    "overrides": {}
+}

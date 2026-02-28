@@ -1,0 +1,10 @@
+{
+    "extends": "@btc-vision/btc-runtime/tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./build",
+        "rootDir": "./src",
+        "strict": true,
+        "noEmit": true
+    },
+    "include": ["src/**/*.ts"]
+}

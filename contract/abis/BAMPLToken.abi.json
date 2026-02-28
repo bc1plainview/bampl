@@ -1,0 +1,506 @@
+{
+    "functions": [
+        {
+            "name": "name",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "name",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "symbol",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "symbol",
+                    "type": "STRING"
+                }
+            ]
+        },
+        {
+            "name": "decimals",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "decimals",
+                    "type": "UINT8"
+                }
+            ]
+        },
+        {
+            "name": "totalSupply",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "totalSupply",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "balanceOf",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "owner",
+                    "type": "ADDRESS"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "balance",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "scaledBalanceOf",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "owner",
+                    "type": "ADDRESS"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "gonBalance",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "scaledTotalSupply",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "scaledTotal",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "allowance",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "owner",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "spender",
+                    "type": "ADDRESS"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "remaining",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "transfer",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "to",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "amount",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "transferFrom",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "from",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "to",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "amount",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "transferAll",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "to",
+                    "type": "ADDRESS"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "approve",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "spender",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "amount",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "increaseAllowance",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "spender",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "addedValue",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "decreaseAllowance",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "spender",
+                    "type": "ADDRESS"
+                },
+                {
+                    "name": "subtractedValue",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "postPrice",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "price",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "rebase",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "newTotalSupply",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "currentPrice",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "price",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "targetPrice",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "target",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "currentEpoch",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "epoch",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "nextRebaseBlock",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "blockHeight",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "canRebase",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "ready",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "gonsPerFragment",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "gonsPerFragment",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "lastRebaseBlock",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "lastRebaseBlock",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "epochLength",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "epochLength",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "rebaseLag",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "lag",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "deviationThreshold",
+            "type": "View",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "threshold",
+                    "type": "UINT256"
+                }
+            ]
+        },
+        {
+            "name": "setTargetPrice",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "newTarget",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "setEpochLength",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "newLength",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "setRebaseLag",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "newLag",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "setDeviationThreshold",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [
+                {
+                    "name": "newThreshold",
+                    "type": "UINT256"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "enableDemoMode",
+            "type": "Function",
+            "payable": false,
+            "onlyOwner": false,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "success",
+                    "type": "BOOL"
+                }
+            ]
+        }
+    ],
+    "events": []
+}

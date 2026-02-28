@@ -1,0 +1,29 @@
+{
+    "name": "bampl-scripts",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "postinstall": "node patch-noble-hashes.js",
+        "deploy": "npx tsx deploy.ts",
+        "demo": "npx tsx demo.ts",
+        "pool": "npx tsx create-pool.ts",
+        "faucet": "npx tsx faucet-server.ts",
+        "simulate": "npx tsx simulator.ts"
+    },
+    "dependencies": {
+        "@btc-vision/bip32": "latest",
+        "@btc-vision/bitcoin": "rc",
+        "@btc-vision/ecpair": "latest",
+        "@btc-vision/transaction": "rc",
+        "dotenv": "latest",
+        "opnet": "1.8.1-rc.12"
+    },
+    "devDependencies": {
+        "@types/node": "latest",
+        "tsx": "latest",
+        "typescript": "latest"
+    },
+    "overrides": {
+        "@noble/hashes": "2.0.1"
+    }
+}
